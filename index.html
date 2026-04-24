@@ -1,0 +1,534 @@
+<h2 class="sr-only">Ejercicios interactivos de construccion de precios - Unidad 4 - Gonzalez Garcia SA</h2>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif); }
+.app { max-width: 640px; margin: 0 auto; padding: 1rem 0; }
+.nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.nav-btn { padding: 6px 14px; font-size: 12px; border-radius: var(--border-radius-md, 8px); border: 0.5px solid var(--color-border-tertiary, #ddd); background: var(--color-background-primary, #fff); color: var(--color-text-secondary, #666); cursor: pointer; font-weight: 400; transition: all 0.15s; }
+.nav-btn:hover { background: var(--color-background-secondary, #f5f5f0); }
+.nav-btn.active { background: #003B71; color: #fff; border-color: #003B71; font-weight: 500; }
+.nav-btn.done { border-color: #639922; color: #639922; }
+.section { display: none; }
+.section.visible { display: block; }
+.sec-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary, #1a1a1a); margin-bottom: 4px; }
+.sec-sub { font-size: 13px; color: var(--color-text-secondary, #666); margin-bottom: 1.5rem; }
+.exercise { background: var(--color-background-primary, #fff); border: 0.5px solid var(--color-border-tertiary, #ddd); border-radius: var(--border-radius-lg, 12px); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.ex-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary, #1a1a1a); margin-bottom: 8px; }
+.ex-desc { font-size: 14px; color: var(--color-text-secondary, #666); margin-bottom: 12px; line-height: 1.6; }
+.ex-data { font-size: 13px; color: var(--color-text-secondary, #555); background: var(--color-background-secondary, #f8f8f5); border-radius: var(--border-radius-md, 8px); padding: 10px 14px; margin-bottom: 12px; line-height: 1.7; }
+.ex-data b { color: var(--color-text-primary, #1a1a1a); }
+.field-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.field-label { font-size: 13px; color: var(--color-text-secondary, #666); min-width: 180px; }
+.field-input { width: 120px; padding: 6px 10px; font-size: 14px; border: 0.5px solid var(--color-border-secondary, #ccc); border-radius: var(--border-radius-md, 8px); background: var(--color-background-primary, #fff); color: var(--color-text-primary, #1a1a1a); text-align: right; }
+.field-input:focus { outline: none; border-color: #003B71; box-shadow: 0 0 0 2px rgba(0,59,113,0.15); }
+.field-unit { font-size: 12px; color: var(--color-text-tertiary, #999); }
+.check-btn { padding: 8px 20px; font-size: 13px; font-weight: 500; border-radius: var(--border-radius-md, 8px); border: 0.5px solid #003B71; background: #003B71; color: #fff; cursor: pointer; margin-top: 8px; transition: all 0.15s; }
+.check-btn:hover { background: #00264d; }
+.check-btn:active { transform: scale(0.98); }
+.feedback { margin-top: 10px; padding: 10px 14px; border-radius: var(--border-radius-md, 8px); font-size: 13px; line-height: 1.6; display: none; }
+.feedback.correct { display: block; background: #EAF3DE; color: #27500A; border: 0.5px solid #97C459; }
+.feedback.wrong { display: block; background: #FCEBEB; color: #791F1F; border: 0.5px solid #F09595; }
+.feedback.partial { display: block; background: #FAEEDA; color: #633806; border: 0.5px solid #FAC775; }
+.score-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--color-background-secondary, #f5f5f0); border-radius: var(--border-radius-md, 8px); margin-bottom: 1.5rem; }
+.score-label { font-size: 13px; color: var(--color-text-secondary, #666); }
+.score-val { font-size: 20px; font-weight: 500; color: var(--color-text-primary, #1a1a1a); }
+.score-fill { flex: 1; height: 6px; background: var(--color-border-tertiary, #e0e0e0); border-radius: 3px; overflow: hidden; }
+.score-fill-inner { height: 100%; background: #639922; border-radius: 3px; transition: width 0.4s; }
+.hint-btn { font-size: 12px; color: #185FA5; background: none; border: none; cursor: pointer; margin-top: 4px; text-decoration: underline; }
+.hint-text { font-size: 12px; color: var(--color-text-secondary, #666); font-style: italic; margin-top: 4px; display: none; padding: 6px 10px; background: var(--color-background-secondary, #f8f8f5); border-radius: var(--border-radius-md, 8px); }
+.vf-options { display: flex; gap: 8px; margin: 8px 0; }
+.vf-btn { padding: 6px 20px; font-size: 13px; border-radius: var(--border-radius-md, 8px); border: 0.5px solid var(--color-border-secondary, #ccc); background: var(--color-background-primary, #fff); color: var(--color-text-primary, #1a1a1a); cursor: pointer; transition: all 0.15s; }
+.vf-btn:hover { background: var(--color-background-secondary, #f5f5f0); }
+.vf-btn.selected { background: #003B71; color: #fff; border-color: #003B71; }
+.vf-btn.correct-answer { background: #EAF3DE; color: #27500A; border-color: #97C459; }
+.vf-btn.wrong-answer { background: #FCEBEB; color: #791F1F; border-color: #F09595; }
+select { padding: 6px 10px; font-size: 13px; border: 0.5px solid var(--color-border-secondary, #ccc); border-radius: var(--border-radius-md, 8px); background: var(--color-background-primary, #fff); color: var(--color-text-primary, #1a1a1a); }
+.table-exercise { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+.table-exercise th { background: #003B71; color: #fff; padding: 8px 10px; text-align: center; font-weight: 500; font-size: 12px; }
+.table-exercise td { padding: 6px 8px; border: 0.5px solid var(--color-border-tertiary, #ddd); text-align: center; }
+.table-exercise tr:nth-child(even) { background: var(--color-background-secondary, #f8f8f5); }
+.table-exercise input { width: 80px; text-align: center; padding: 4px 6px; font-size: 13px; border: 0.5px solid var(--color-border-secondary, #ccc); border-radius: 4px; background: var(--color-background-primary, #fff); color: var(--color-text-primary, #1a1a1a); }
+.congrats { text-align: center; padding: 2rem 1rem; }
+.congrats-icon { font-size: 48px; margin-bottom: 12px; }
+.congrats-title { font-size: 20px; font-weight: 500; margin-bottom: 8px; }
+.congrats-sub { font-size: 14px; color: var(--color-text-secondary, #666); }
+.progress-dots { display: flex; gap: 4px; justify-content: center; margin: 12px 0; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-border-tertiary, #ddd); }
+.dot.filled { background: #639922; }
+.dot.current { background: #003B71; }
+</style>
+<div class="app" id="app">
+  <div class="score-bar">
+    <div><span class="score-label">Puntaje</span><br><span class="score-val" id="score">0/30</span></div>
+    <div class="score-fill"><div class="score-fill-inner" id="score-bar" style="width:0%"></div></div>
+  </div>
+  <div class="nav" id="nav"></div>
+  <div id="sections"></div>
+</div>
+<script>
+const SECTIONS = [
+  {
+    id: 'conceptos',
+    title: 'Conceptos basicos',
+    sub: 'Definiciones y verdadero/falso sobre precios e impuestos',
+    exercises: [
+      {
+        type: 'vf',
+        title: 'Verdadero o falso',
+        desc: 'El IVA es un impuesto provincial del 21%.',
+        answer: false,
+        explanation: 'Falso. El IVA es un impuesto NACIONAL, no provincial. La alicuota general es del 21%.'
+      },
+      {
+        type: 'vf',
+        title: 'Verdadero o falso',
+        desc: 'A un cliente Responsable Inscripto se le emite Factura A.',
+        answer: true,
+        explanation: 'Verdadero. Los clientes Responsables Inscriptos reciben Factura A donde el IVA se discrimina al pie.'
+      },
+      {
+        type: 'vf',
+        title: 'Verdadero o falso',
+        desc: 'Los Ingresos Brutos (II.BB.) se deben trasladar siempre al precio final del consumidor.',
+        answer: false,
+        explanation: 'Falso. Los II.BB. NO se deben trasladar al precio. La distribuidora es agente de percepcion y cobra un porcentaje "a cuenta" del impuesto del PDV.'
+      },
+      {
+        type: 'vf',
+        title: 'Verdadero o falso',
+        desc: 'El precio en el celular para un cliente Monotributista ya incluye el IVA.',
+        answer: true,
+        explanation: 'Verdadero. Para Monotributistas (Factura B), el precio en el celular ya incluye el 21% de IVA.'
+      },
+      {
+        type: 'vf',
+        title: 'Verdadero o falso',
+        desc: 'El Mark Up es el margen que la Distribuidora le agrega al producto.',
+        answer: false,
+        explanation: 'Falso. El Mark Up es el margen que el PDV (comerciante) le agrega al precio de compra para determinar su precio de venta al publico.'
+      },
+      {
+        type: 'select',
+        title: 'Tipo de factura',
+        desc: 'Un cliente Monotributista inscripto en Regimen Monto Fijo de Rentas (DGR), ¿que tipo de factura recibe y que percepcion de II.BB. se le cobra?',
+        options: ['Factura A, II.BB. 4%', 'Factura B, II.BB. 4%', 'Factura B, II.BB. 0%', 'Factura B, II.BB. 6%'],
+        answer: 2,
+        explanation: 'Recibe Factura B (es Monotributista). Al estar en Regimen Monto Fijo de Rentas (DGR), NO se le cobra percepcion de II.BB.'
+      }
+    ]
+  },
+  {
+    id: 'impositiva',
+    title: 'Matriz impositiva',
+    sub: 'Calculos de precio final al PDV segun situacion fiscal',
+    exercises: [
+      {
+        type: 'calc',
+        title: 'Precio final - Responsable Inscripto',
+        desc: 'Un producto tiene Precio de Lista sin IVA de $150,00. Cliente Responsable Inscripto, Inscripto en Rentas.',
+        data: 'Precio Lista sin IVA: <b>$150,00</b> | IVA: <b>21%</b> | II.BB.: <b>4% sobre precio sin IVA</b>',
+        fields: [
+          { label: 'IVA (21%)', key: 'iva', answer: 31.5, tolerance: 0.5, unit: '$' },
+          { label: 'Precio con IVA', key: 'coniva', answer: 181.5, tolerance: 0.5, unit: '$' },
+          { label: 'II.BB. (4% s/precio sin IVA)', key: 'iibb', answer: 6, tolerance: 0.5, unit: '$' },
+          { label: 'Precio Final al PDV', key: 'final', answer: 187.5, tolerance: 1, unit: '$' }
+        ],
+        hint: 'Para Resp. Inscripto: IVA = 150 x 0.21. II.BB. se calcula sobre precio sin IVA: 150 x 0.04'
+      },
+      {
+        type: 'calc',
+        title: 'Precio final - Monotributista',
+        desc: 'Mismo producto. Precio con IVA incluido: $181,50. Cliente Monotributista, Inscripto en Rentas.',
+        data: 'Precio con IVA: <b>$181,50</b> | II.BB.: <b>4% sobre precio con IVA</b>',
+        fields: [
+          { label: 'II.BB. (4% s/precio con IVA)', key: 'iibb', answer: 7.26, tolerance: 0.1, unit: '$' },
+          { label: 'Precio Final al PDV', key: 'final', answer: 188.76, tolerance: 0.5, unit: '$' }
+        ],
+        hint: 'Para Monotributista: II.BB. = 181.50 x 0.04. Precio Final = 181.50 + II.BB.'
+      },
+      {
+        type: 'calc',
+        title: 'Precio final - No Inscripto',
+        desc: 'Mismo producto. Cliente No Inscripto en IVA, No Inscripto en Rentas.',
+        data: 'Precio con IVA: <b>$181,50</b> | Percepcion IVA adicional: <b>10,5%</b> | II.BB.: <b>6%</b>',
+        fields: [
+          { label: 'Percepcion IVA (10.5%)', key: 'perc', answer: 19.06, tolerance: 0.5, unit: '$' },
+          { label: 'II.BB. (6%)', key: 'iibb', answer: 10.89, tolerance: 0.5, unit: '$' },
+          { label: 'Precio Final al PDV', key: 'final', answer: 211.45, tolerance: 1.5, unit: '$' }
+        ],
+        hint: 'Percepcion IVA = 181.50 x 0.105. II.BB. = 181.50 x 0.06. Precio Final = 181.50 + Percepcion + II.BB.'
+      }
+    ]
+  },
+  {
+    id: 'markup',
+    title: 'Mark Up y PVP',
+    sub: 'Margenes de ganancia del comerciante y precio al publico',
+    exercises: [
+      {
+        type: 'calc',
+        title: 'Calculo de Mark Up - Bon o Bon',
+        desc: 'Producto: Bon o Bon Leche 12x30x17g. Precio Lista Unitario al PDV: $3,22. Mark Up del kiosco: 55%.',
+        data: 'Precio Lista Unitario: <b>$3,22</b> | Mark Up: <b>55%</b>',
+        fields: [
+          { label: 'Mark Up en $ (ganancia)', key: 'mkp', answer: 1.77, tolerance: 0.05, unit: '$' },
+          { label: 'Precio Venta al Publico', key: 'pvp', answer: 4.99, tolerance: 0.05, unit: '$' }
+        ],
+        hint: 'Mark Up en $ = 3.22 x 0.55. PVP = 3.22 + Mark Up en $'
+      },
+      {
+        type: 'calc',
+        title: 'Mark Up por canal - Almacen',
+        desc: 'Mismo producto (Bon o Bon, $3,22). El almacen de barrio aplica un Mark Up del 45%.',
+        data: 'Precio Lista Unitario: <b>$3,22</b> | Mark Up Almacen: <b>45%</b>',
+        fields: [
+          { label: 'Mark Up en $', key: 'mkp', answer: 1.45, tolerance: 0.05, unit: '$' },
+          { label: 'PVP en almacen', key: 'pvp', answer: 4.67, tolerance: 0.05, unit: '$' }
+        ],
+        hint: 'Mark Up en $ = 3.22 x 0.45. PVP = 3.22 + Mark Up en $'
+      },
+      {
+        type: 'calc',
+        title: 'Mark Up por canal - Estacion de Servicio',
+        desc: 'Mismo producto (Bon o Bon, $3,22). La estacion de servicio aplica un Mark Up del 80%.',
+        data: 'Precio Lista Unitario: <b>$3,22</b> | Mark Up EESS: <b>80%</b>',
+        fields: [
+          { label: 'Mark Up en $', key: 'mkp', answer: 2.58, tolerance: 0.05, unit: '$' },
+          { label: 'PVP en EESS', key: 'pvp', answer: 5.80, tolerance: 0.05, unit: '$' }
+        ],
+        hint: 'Mark Up en $ = 3.22 x 0.80. PVP = 3.22 + Mark Up en $'
+      }
+    ]
+  },
+  {
+    id: 'contribucion',
+    title: 'Contribucion marginal',
+    sub: 'Cuanto gana el PDV por unidad y por mes',
+    exercises: [
+      {
+        type: 'calc',
+        title: 'Contribucion Marginal Unitaria',
+        desc: 'Un kiosco vende Alfajor Tofi Triple. Calcular cuanto contribuye cada unidad vendida a la ganancia.',
+        data: 'PVP: <b>$8,50</b> | Precio compra PDV: <b>$5,20</b> | Bolsita: <b>$0,10</b> | Comision ayudante: <b>$0,20</b>',
+        fields: [
+          { label: 'Costos variables por unidad', key: 'cv', answer: 0.30, tolerance: 0.01, unit: '$' },
+          { label: 'Contribucion Marginal Unitaria', key: 'cmu', answer: 3.00, tolerance: 0.05, unit: '$' }
+        ],
+        hint: 'Costos Variables = Bolsita + Comision. CMU = PVP - Precio Compra - Costos Variables'
+      },
+      {
+        type: 'calc',
+        title: 'Contribucion Marginal Total y Utilidad',
+        desc: 'El kiosco vende 2.000 unidades/mes del Alfajor Tofi Triple (CMU = $3,00).',
+        data: 'CMU: <b>$3,00</b> | Unidades/mes: <b>2.000</b> | Alquiler: <b>$800</b> | Servicios: <b>$350</b> | Sueldo ayudante: <b>$600</b>',
+        fields: [
+          { label: 'Contribucion Marginal Total', key: 'cmt', answer: 6000, tolerance: 10, unit: '$' },
+          { label: 'Total Costos Fijos', key: 'cf', answer: 1750, tolerance: 10, unit: '$' },
+          { label: 'Ganancia/Utilidad del mes', key: 'util', answer: 4250, tolerance: 20, unit: '$' }
+        ],
+        hint: 'CMT = CMU x Unidades. CF = Alquiler + Servicios + Sueldo. Utilidad = CMT - CF'
+      }
+    ]
+  },
+  {
+    id: 'rotacion',
+    title: 'Rotacion e incremento',
+    sub: 'Volumen incremental y precio promedio neto',
+    exercises: [
+      {
+        type: 'calc',
+        title: 'Volumen incremental de rotacion',
+        desc: 'Se ofrece Saladix a $6,50 (500 uds/mes). Se propone descuento del 20% al consumidor.',
+        data: 'PVP actual: <b>$6,50</b> | Volumen actual: <b>500 uds</b> | Descuento propuesto: <b>20%</b>',
+        fields: [
+          { label: 'Precio de oferta (con dto)', key: 'oferta', answer: 5.20, tolerance: 0.05, unit: '$' },
+          { label: 'Uds necesarias para igualar', key: 'uds', answer: 625, tolerance: 5, unit: 'uds' }
+        ],
+        hint: 'Oferta = 6.50 x (1 - 0.20). Uds = (6.50 x 500) / 5.20'
+      },
+      {
+        type: 'calc',
+        title: 'Precio Promedio Neto',
+        desc: 'Un almacen compra 10 unidades de Pure Arcor a $8 c/u. Promo: 10 + 1 sin cargo. Mark Up: 40%.',
+        data: 'Compra: <b>10 uds x $8</b> | Recibe: <b>11 uds</b> | Mark Up: <b>40%</b>',
+        fields: [
+          { label: 'Monto total pagado', key: 'pago', answer: 80, tolerance: 0.5, unit: '$' },
+          { label: 'Precio Promedio por Unidad', key: 'ppn', answer: 7.27, tolerance: 0.05, unit: '$' },
+          { label: 'PVP a precio pleno', key: 'pvp1', answer: 11.20, tolerance: 0.1, unit: '$' },
+          { label: 'PVP trasladando oferta', key: 'pvp2', answer: 10.18, tolerance: 0.1, unit: '$' }
+        ],
+        hint: 'Pagado = 10 x 8 = $80. PPN = 80/11. PVP pleno = 8 x 1.40. PVP oferta = 7.27 x 1.40'
+      }
+    ]
+  },
+  {
+    id: 'descuentos',
+    title: 'Ofertas y descuentos',
+    sub: 'Tablas de bonificaciones y descuentos',
+    exercises: [
+      {
+        type: 'calc',
+        title: 'Descuento por bonificacion: 5 + 1',
+        desc: 'Si la promocion es "5 unidades + 1 gratis", ¿cual es el porcentaje de descuento?',
+        data: 'Formula: <b>Unidades gratis / Total unidades</b> = 1 / 6',
+        fields: [
+          { label: '% de descuento', key: 'desc', answer: 17, tolerance: 1, unit: '%' }
+        ],
+        hint: '1 dividido 6 = 0.1666... = 17%'
+      },
+      {
+        type: 'calc',
+        title: 'Descuento por bonificacion: 3 + 1',
+        desc: 'Promocion: "3 unidades + 1 gratis". Calcular el descuento.',
+        data: 'Formula: <b>1 / 4</b>',
+        fields: [
+          { label: '% de descuento', key: 'desc', answer: 25, tolerance: 1, unit: '%' }
+        ],
+        hint: '1 dividido 4 = 0.25 = 25%'
+      },
+      {
+        type: 'calc',
+        title: 'Ahorro "Pagas 2, llevas 3"',
+        desc: 'Accion: "Pagas 2, llevas 3". ¿Cual es el ahorro para el consumidor final?',
+        data: 'Formula: <b>1 - (unidades pagadas / unidades llevadas)</b> = 1 - (2/3)',
+        fields: [
+          { label: '% ahorro consumidor', key: 'ahorro', answer: 33, tolerance: 1, unit: '%' }
+        ],
+        hint: '1 - (2/3) = 1 - 0.666 = 0.333 = 33%'
+      },
+      {
+        type: 'calc',
+        title: 'Ahorro "Pagas 3, llevas 4"',
+        desc: 'Accion: "Pagas 3, llevas 4". ¿Cual es el ahorro para el consumidor final?',
+        data: 'Formula: <b>1 - (3/4)</b>',
+        fields: [
+          { label: '% ahorro consumidor', key: 'ahorro', answer: 25, tolerance: 1, unit: '%' }
+        ],
+        hint: '1 - (3/4) = 1 - 0.75 = 0.25 = 25%'
+      }
+    ]
+  },
+  {
+    id: 'integrador',
+    title: 'Caso integrador',
+    sub: 'El kiosco de Don Miguel - ejercicio completo',
+    exercises: [
+      {
+        type: 'select',
+        title: 'Tipo de factura de Don Miguel',
+        desc: 'Don Miguel es Monotributista, Inscripto en Rentas. Tiene un kiosco en barrio Alberdi, Cordoba. ¿Que factura recibe?',
+        options: ['Factura A', 'Factura B', 'Factura C'],
+        answer: 1,
+        explanation: 'Don Miguel recibe Factura B porque es Monotributista.'
+      },
+      {
+        type: 'calc',
+        title: 'Precio Final al PDV - Don Miguel',
+        desc: 'Jugo en Polvo BC x 18 sobres. Precio con IVA: $181,50. Don Miguel es Monotributista, Inscripto en Rentas.',
+        data: 'Precio con IVA: <b>$181,50</b> | II.BB.: <b>4% sobre precio con IVA</b>',
+        fields: [
+          { label: 'II.BB. (4%)', key: 'iibb', answer: 7.26, tolerance: 0.1, unit: '$' },
+          { label: 'Precio Final al PDV', key: 'final', answer: 188.76, tolerance: 0.5, unit: '$' }
+        ],
+        hint: 'II.BB. = 181.50 x 0.04. Precio Final = 181.50 + II.BB.'
+      },
+      {
+        type: 'calc',
+        title: 'Precio Promedio con promocion',
+        desc: 'Don Miguel compra 10 cajas (10+1 s/c). Cada caja = $188,76. Cada caja tiene 18 sobres.',
+        data: 'Paga: <b>10 cajas x $188,76</b> | Recibe: <b>11 cajas x 18 sobres = 198 sobres</b>',
+        fields: [
+          { label: 'Monto total pagado', key: 'total', answer: 1887.6, tolerance: 1, unit: '$' },
+          { label: 'Sobres totales recibidos', key: 'sobres', answer: 198, tolerance: 0, unit: 'uds' },
+          { label: 'Precio Promedio Neto/sobre', key: 'ppn', answer: 9.53, tolerance: 0.1, unit: '$' }
+        ],
+        hint: 'Pagado = 10 x 188.76. Sobres = 11 x 18 = 198. PPN = Pagado / 198'
+      },
+      {
+        type: 'calc',
+        title: 'PVP y ganancia de Don Miguel',
+        desc: 'Precio unitario (sin promo): $10,49/sobre. Precio promedio neto: $9,53/sobre. Mark Up: 50%. Vende 300 sobres/mes.',
+        data: 'P. unitario sin promo: <b>$10,49</b> | P. promedio con promo: <b>$9,53</b> | Mark Up: <b>50%</b> | Ventas: <b>300 sobres/mes</b>',
+        fields: [
+          { label: 'PVP a precio pleno', key: 'pvp1', answer: 15.74, tolerance: 0.2, unit: '$' },
+          { label: 'PVP trasladando oferta', key: 'pvp2', answer: 14.30, tolerance: 0.2, unit: '$' },
+          { label: 'CMU (PVP oferta - costo)', key: 'cmu', answer: 4.77, tolerance: 0.2, unit: '$' },
+          { label: 'CM Total (300 sobres)', key: 'cmt', answer: 1431, tolerance: 20, unit: '$' }
+        ],
+        hint: 'PVP pleno = 10.49 x 1.50. PVP oferta = 9.53 x 1.50. CMU = PVP oferta - 9.53. CMT = CMU x 300'
+      }
+    ]
+  }
+];
+
+let scores = {};
+let totalPoints = 0;
+let earnedPoints = 0;
+
+SECTIONS.forEach(s => { s.exercises.forEach((e, i) => { scores[s.id + '_' + i] = null; totalPoints++; }); });
+
+function renderNav() {
+  const nav = document.getElementById('nav');
+  nav.innerHTML = SECTIONS.map((s, i) =>
+    `<button class="nav-btn${i === 0 ? ' active' : ''}" onclick="showSection(${i})" id="nav-${i}">${s.title}</button>`
+  ).join('');
+}
+
+function showSection(idx) {
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.section').forEach((s, i) => {
+    s.classList.toggle('visible', i === idx);
+  });
+}
+
+function renderSections() {
+  const container = document.getElementById('sections');
+  container.innerHTML = SECTIONS.map((s, si) => {
+    const exHtml = s.exercises.map((e, ei) => renderExercise(e, si, ei)).join('');
+    return `<div class="section${si === 0 ? ' visible' : ''}" id="sec-${si}">
+      <div class="sec-title">${s.title}</div>
+      <div class="sec-sub">${s.sub}</div>
+      ${exHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderExercise(e, si, ei) {
+  const id = `ex-${si}-${ei}`;
+  let body = '';
+  if (e.type === 'vf') {
+    body = `<div class="ex-desc">${e.desc}</div>
+      <div class="vf-options">
+        <button class="vf-btn" onclick="answerVF('${id}',${si},${ei},true)">Verdadero</button>
+        <button class="vf-btn" onclick="answerVF('${id}',${si},${ei},false)">Falso</button>
+      </div>`;
+  } else if (e.type === 'select') {
+    body = `<div class="ex-desc">${e.desc}</div>
+      <div class="vf-options">${e.options.map((o, oi) =>
+        `<button class="vf-btn" onclick="answerSelect('${id}',${si},${ei},${oi})">${o}</button>`
+      ).join('')}</div>`;
+  } else if (e.type === 'calc') {
+    body = `<div class="ex-desc">${e.desc}</div>
+      <div class="ex-data">${e.data}</div>
+      ${e.fields.map(f => `<div class="field-row">
+        <span class="field-label">${f.label}</span>
+        <input class="field-input" type="number" step="any" id="${id}-${f.key}" placeholder="...">
+        <span class="field-unit">${f.unit}</span>
+      </div>`).join('')}
+      <button class="check-btn" onclick="checkCalc('${id}',${si},${ei})">Verificar</button>
+      ${e.hint ? `<button class="hint-btn" onclick="toggleHint('${id}')">Ver pista</button><div class="hint-text" id="${id}-hint">${e.hint}</div>` : ''}`;
+  }
+  return `<div class="exercise" id="${id}">
+    <div class="ex-title">${e.title}</div>
+    ${body}
+    <div class="feedback" id="${id}-fb"></div>
+  </div>`;
+}
+
+function answerVF(id, si, ei, val) {
+  const e = SECTIONS[si].exercises[ei];
+  const key = SECTIONS[si].id + '_' + ei;
+  if (scores[key] !== null) return;
+  const btns = document.querySelectorAll(`#${id} .vf-btn`);
+  const correct = val === e.answer;
+  btns.forEach(b => {
+    const bVal = b.textContent === 'Verdadero';
+    if (bVal === e.answer) b.classList.add('correct-answer');
+    else if (bVal === val && !correct) b.classList.add('wrong-answer');
+    b.classList.add('selected');
+  });
+  scores[key] = correct;
+  if (correct) earnedPoints++;
+  showFeedback(id, correct, e.explanation);
+  updateScore();
+}
+
+function answerSelect(id, si, ei, oi) {
+  const e = SECTIONS[si].exercises[ei];
+  const key = SECTIONS[si].id + '_' + ei;
+  if (scores[key] !== null) return;
+  const btns = document.querySelectorAll(`#${id} .vf-btn`);
+  const correct = oi === e.answer;
+  btns.forEach((b, i) => {
+    if (i === e.answer) b.classList.add('correct-answer');
+    else if (i === oi && !correct) b.classList.add('wrong-answer');
+  });
+  scores[key] = correct;
+  if (correct) earnedPoints++;
+  showFeedback(id, correct, e.explanation);
+  updateScore();
+}
+
+function checkCalc(id, si, ei) {
+  const e = SECTIONS[si].exercises[ei];
+  const key = SECTIONS[si].id + '_' + ei;
+  if (scores[key] !== null) return;
+  let allCorrect = true;
+  let anyFilled = false;
+  let details = [];
+  e.fields.forEach(f => {
+    const input = document.getElementById(`${id}-${f.key}`);
+    const val = parseFloat(input.value);
+    if (isNaN(val)) { allCorrect = false; return; }
+    anyFilled = true;
+    const diff = Math.abs(val - f.answer);
+    if (diff <= f.tolerance) {
+      input.style.borderColor = '#639922';
+      input.style.background = '#EAF3DE';
+    } else {
+      input.style.borderColor = '#E24B4A';
+      input.style.background = '#FCEBEB';
+      allCorrect = false;
+      details.push(`${f.label}: la respuesta correcta es ${f.unit === '$' ? '$' : ''}${f.answer.toLocaleString('es-AR', {minimumFractionDigits: f.answer % 1 ? 2 : 0})}${f.unit === '%' ? '%' : f.unit === 'uds' ? ' uds' : ''}`);
+    }
+  });
+  if (!anyFilled) return;
+  scores[key] = allCorrect;
+  if (allCorrect) earnedPoints++;
+  const msg = allCorrect
+    ? 'Excelente! Todos los calculos son correctos.'
+    : 'Revisa los campos marcados en rojo. ' + details.join('. ') + '.';
+  showFeedback(id, allCorrect, msg);
+  updateScore();
+}
+
+function showFeedback(id, correct, msg) {
+  const fb = document.getElementById(`${id}-fb`);
+  fb.className = `feedback ${correct ? 'correct' : 'wrong'}`;
+  fb.innerHTML = (correct ? '&#10004; ' : '&#10008; ') + msg;
+}
+
+function toggleHint(id) {
+  const h = document.getElementById(`${id}-hint`);
+  h.style.display = h.style.display === 'block' ? 'none' : 'block';
+}
+
+function updateScore() {
+  const answered = Object.values(scores).filter(v => v !== null).length;
+  document.getElementById('score').textContent = `${earnedPoints}/${totalPoints}`;
+  document.getElementById('score-bar').style.width = `${(earnedPoints / totalPoints) * 100}%`;
+  SECTIONS.forEach((s, si) => {
+    const sectionScores = s.exercises.map((_, ei) => scores[s.id + '_' + ei]);
+    const allDone = sectionScores.every(v => v !== null);
+    const allCorrect = sectionScores.every(v => v === true);
+    const btn = document.getElementById(`nav-${si}`);
+    if (allDone && allCorrect) btn.classList.add('done');
+  });
+  if (answered === totalPoints) {
+    const pct = Math.round((earnedPoints / totalPoints) * 100);
+    let emoji = pct >= 80 ? '&#127942;' : pct >= 50 ? '&#128170;' : '&#128218;';
+    let msg = pct >= 80 ? 'Felicitaciones, dominas la construccion de precios!' : pct >= 50 ? 'Buen trabajo! Segui practicando los temas con errores.' : 'Te recomendamos repasar la Unidad 4 del manual y volver a intentar.';
+    const container = document.getElementById('sections');
+    container.innerHTML += `<div class="congrats">
+      <div class="congrats-icon">${emoji}</div>
+      <div class="congrats-title">Resultado: ${earnedPoints} de ${totalPoints} (${pct}%)</div>
+      <div class="congrats-sub">${msg}</div>
+    </div>`;
+  }
+}
+
+renderNav();
+renderSections();
+</script>
